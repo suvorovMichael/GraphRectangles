@@ -2,6 +2,9 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// Класс Игрового поля. Отображает узлы и ребра.
+/// </summary>
 public class GameField : MonoBehaviour, IPointerClickHandler {
 
     [SerializeField] Transform nodesRoot;
@@ -16,9 +19,21 @@ public class GameField : MonoBehaviour, IPointerClickHandler {
 
     Node selectedNode;
 
+    Rect validRect;
+
     void Start() {
         nodeWidth = nodePrefab.GetComponent<RectTransform>().sizeDelta.x;
         nodeHeight = nodePrefab.GetComponent<RectTransform>().sizeDelta.y;
+
+        DefineValidRect();
+    }
+
+    /// <summary>
+    /// Определение области, в которой можно создать прямоугольник.
+    /// </summary>
+    void DefineValidRect() {
+        RectTransform rectTransform = GetComponent<RectTransform>();
+        validRect = new Rect(-rectTransform.rect.width / 2 + nodeWidth / 2, -rectTransform.rect.height / 2 + nodeHeight / 2, rectTransform.rect.width - nodeWidth, rectTransform.rect.height - nodeHeight);
     }
 
     public void OnPointerClick(PointerEventData eventData) {
@@ -27,10 +42,20 @@ public class GameField : MonoBehaviour, IPointerClickHandler {
             CreateNode(position);
     }
 
+    /// <summary>
+    /// Проверяет, может ли узел находиться в заданной позиции.
+    /// Узел не должен пересекаться с другими узлами и не выходить за границы экрана.
+    /// </summary>
+    /// <param name="position">Заданная позиция</param>
+    /// <param name="rectangle">Узел</param>
     bool IsValidPosition(Vector2 position, Node rectangle = null) {
+        if (!validRect.Contains(position))
+            return false;
+
         foreach (Node r in nodes)
             if (rectangle != r && Mathf.Abs(position.x - r.transform.localPosition.x) < nodeWidth && Mathf.Abs(position.y - r.transform.localPosition.y) < nodeHeight)
                 return false;
+
         return true;
     }
 

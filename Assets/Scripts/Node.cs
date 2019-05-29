@@ -4,6 +4,10 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
+/// <summary>
+/// Класс Node представляет узел графа.
+/// Содержит все ребра, соединяющие этот узел с другими.
+/// </summary>
 public class Node : MonoBehaviour, IDragHandler, IPointerClickHandler, IPointerDownHandler {
 
     Transform cachedTransform;
@@ -16,12 +20,18 @@ public class Node : MonoBehaviour, IDragHandler, IPointerClickHandler, IPointerD
     bool pointerDown = false;
     System.Func<Vector2, Node, bool> validPosition;
 
-    HashSet<Edge> edges = new HashSet<Edge>();
+    // Все ребра, связывающие данный узел
+    HashSet<Edge> edges = new HashSet<Edge>(); 
 
     public UnityEvent onDestroy = new UnityEvent();
     public UnityEvent onSelect = new UnityEvent();
     public UnityEvent onDeselect = new UnityEvent();
 
+    /// <summary>
+    /// Инициализирует узел.
+    /// </summary>
+    /// <param name="position">Позиция узла</param>
+    /// <param name="rectangleValidPosition">Функция проверки того, может ли узел находиться в данной позиции</param>
     public void Initialize(Vector2 position, System.Func<Vector2, Node, bool> rectangleValidPosition) {
         name = "Node";
         cachedTransform = transform;
@@ -41,8 +51,9 @@ public class Node : MonoBehaviour, IDragHandler, IPointerClickHandler, IPointerD
             return;
 
         cachedTransform.localPosition = position;
-            foreach (Edge edge in edges)
+        foreach (Edge edge in edges)
             edge.UpdateTransform();
+
         pointerDown = false;
         if (selected)
             Deselect();
@@ -66,12 +77,18 @@ public class Node : MonoBehaviour, IDragHandler, IPointerClickHandler, IPointerD
         pointerDown = true;
     }
 
+    /// <summary>
+    /// Выделение узла.
+    /// </summary>
     void Select() {
         lastClickTime = Time.time;
         selected = true;
         onSelect.Invoke();
     }
 
+    /// <summary>
+    /// Отменяет выделение узла.
+    /// </summary>
     public void Deselect() {
         selected = false;
         image.color = mainColor;
